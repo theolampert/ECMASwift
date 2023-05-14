@@ -1,0 +1,14 @@
+disabled_rules:
+  - opening_brace
+  - trailing_comma
+identifier_name:
+  excluded:
+    - id
+line_length:
+  warning: 120
+trailing_whitespace:
+  severity: warning
+vertical_whitespace:
+  severity: warning
+opt_in_rules:
+  - force_unwrapping

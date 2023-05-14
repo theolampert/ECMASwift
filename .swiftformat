@@ -1,0 +1,12 @@
+# format options
+
+--comments indent
+--header ignore
+--self remove
+--swiftversion 4.2
+--trimwhitespace always
+--maxwidth 120
+
+# rules
+
+--enable isEmpty
