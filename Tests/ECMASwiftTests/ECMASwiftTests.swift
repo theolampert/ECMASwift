@@ -3,5 +3,4 @@ import JavaScriptCore
 import XCTest
 
 final class JSValueCodableTests: XCTestCase {
-
 }
