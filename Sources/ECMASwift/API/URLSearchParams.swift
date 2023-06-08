@@ -70,9 +70,12 @@ import JSValueCoder
 
 public struct URLSearchParamsAPI {
     public func registerAPIInto(context: JSContext) {
+        let searchParamsClass: @convention(block) () -> URLSearchParams = {
+            return URLSearchParams()
+        }
         context.setObject(
-            URLSearchParams.self,
-            forKeyedSubscript: "URLSearchParams" as NSCopying & NSObjectProtocol
+            unsafeBitCast(searchParamsClass, to: AnyObject.self),
+            forKeyedSubscript: "URLSearchParams" as NSString
         )
     }
 }

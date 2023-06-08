@@ -14,7 +14,7 @@ import JavaScriptCore
     func getAllHeaders() -> [String: String]
 }
 
-class Headers: NSObject, HeadersExports {
+class Headers: NSObject, HeadersExports, Codable {
     private var headers: [String: String] = [:]
 
     func setHeader(_ key: String, _ value: String) {
@@ -36,9 +36,12 @@ class Headers: NSObject, HeadersExports {
 
 class HeadersAPI {
     func registerAPIInto(context: JSContext) {
+        let headersClass: @convention(block) () -> Headers = {
+            return Headers()
+        }
         context.setObject(
-            Headers.self,
-            forKeyedSubscript: "Headers" as NSCopying & NSObjectProtocol
+            unsafeBitCast(headersClass, to: AnyObject.self),
+            forKeyedSubscript: "Headers" as NSString
         )
     }
 }
