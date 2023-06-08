@@ -9,6 +9,7 @@ public struct ECMASwift {
     
     private func registerAPI() {
         FetchAPI().registerAPIInto(context: context)
+        HeadersAPI().registerAPIInto(context: context)
         URLSearchParamsAPI().registerAPIInto(context: context)
         ConsoleAPI().registerAPIInto(context: context)
     }
