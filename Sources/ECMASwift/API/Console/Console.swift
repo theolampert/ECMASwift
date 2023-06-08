@@ -32,7 +32,7 @@ import JavaScriptCore
     }
 }
 
-public class ConsoleAPI {
+public struct ConsoleAPI {
     public func registerAPIInto(context: JSContext) {
         context.setObject(
             Console.self,

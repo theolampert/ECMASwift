@@ -67,3 +67,12 @@ import JSValueCoder
         return queryItems.joined(separator: "&")
     }
 }
+
+public struct URLSearchParamsAPI {
+    public func registerAPIInto(context: JSContext) {
+        context.setObject(
+            URLSearchParams.self,
+            forKeyedSubscript: "URLSearchParams" as NSCopying & NSObjectProtocol
+        )
+    }
+}

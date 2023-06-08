@@ -3,9 +3,8 @@ import JavaScriptCore
 import JSValueCoder
 import XCTest
 
-final class JSValueCodableTests: XCTestCase {
-    func testFetch() async throws {
-        
+final class FetchTests: XCTestCase {
+    func testGet() async throws {
         struct Product: Codable, Equatable {
             let discountPercentage, rating: Double
             let category: String
