@@ -12,11 +12,11 @@ import JSValueCoder
 public class FetchAPI {
     let decoder = JSValueDecoder()
 
-    private static func text(data: Data) -> Any? {
+    private func text(data: Data) -> Any? {
         return String(data: data, encoding: .utf8)
     }
 
-    private static func json(data: Data) -> Any? {
+    private func json(data: Data) -> Any? {
         do {
             return try JSONSerialization.jsonObject(
                 with: data, options: []
@@ -26,15 +26,15 @@ public class FetchAPI {
         }
     }
     
-    static func createResponse(
+    func createResponse(
         response: HTTPURLResponse,
         data: Data
     ) -> [String: Any] {
         let jsonjs: @convention(block) () -> Any? = {
-            FetchAPI.json(data: data)
+            self.json(data: data)
         }
         let textjs: @convention(block) () -> Any? = {
-            FetchAPI.text(data: data)
+            self.text(data: data)
         }
         return [
             "ok": true,
@@ -44,7 +44,7 @@ public class FetchAPI {
         ] as [String: Any]
     }
     
-    public func registerFetchAPIInto(context: JSContext) {
+    public func registerAPIInto(context: JSContext) {
         let fetch: @convention(block) (String, JSValue) -> JSValue? = { link, options in
             let promise = JSValue(newPromiseIn: context) { resolve, reject in
                 if let url = URL(string: link) {
@@ -64,7 +64,7 @@ public class FetchAPI {
                             reject?.call(withArguments: [error])
                         } else if let data = data, let response = (response as? HTTPURLResponse) {
                             resolve?.call(withArguments: [
-                                FetchAPI.createResponse(
+                                self.createResponse(
                                     response: response,
                                     data: data
                                 )
