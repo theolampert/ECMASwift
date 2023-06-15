@@ -21,7 +21,7 @@ final class FetchTests: XCTestCase {
         _ = runtime.context.evaluateScript("""
             async function fetchProducts() {
                 try {
-                    const res = await fetch("https://dummyjson.com/products/1", {})
+                    const res = await fetch("https://dummyjson.com/products/1")
                     return await res.json()
                 } catch(error) {
                     console.log(error)

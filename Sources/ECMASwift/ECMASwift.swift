@@ -12,5 +12,6 @@ public struct ECMASwift {
         HeadersAPI().registerAPIInto(context: context)
         URLSearchParamsAPI().registerAPIInto(context: context)
         ConsoleAPI().registerAPIInto(context: context)
+        JSTimer.registerInto(jsContext: context)
     }
 }

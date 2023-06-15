@@ -7,27 +7,27 @@
 
 import JavaScriptCore
 
-@objc public protocol ConsoleExports: JSExport {
-    func log(_ msg: String)
-    func info(_ msg: String)
-    func warn(_ msg: String)
-    func error(_ msg: String)
+@objc protocol ConsoleExports: JSExport {
+    static func log(_ msg: String)
+    static func info(_ msg: String)
+    static func warn(_ msg: String)
+    static func error(_ msg: String)
 }
 
-@objc public class Console: NSObject, ConsoleExports {
-    public func log(_ msg: String) {
+class Console: NSObject, ConsoleExports {
+    class public func log(_ msg: String) {
         print(msg)
     }
 
-    public func info(_ msg: String) {
+    class public func info(_ msg: String) {
         print(msg)
     }
 
-    public func warn(_ msg: String) {
+    class public func warn(_ msg: String) {
         print(msg)
     }
 
-    public func error(_ msg: String) {
+    class public func error(_ msg: String) {
         print(msg)
     }
 }
