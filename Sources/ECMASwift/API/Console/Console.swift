@@ -1,6 +1,6 @@
 //
 //  Console.swift
-//  
+//
 //
 //  Created by Theodore Lampert on 07.06.23.
 //
@@ -15,19 +15,19 @@ import JavaScriptCore
 }
 
 class Console: NSObject, ConsoleExports {
-    class public func log(_ msg: String) {
+    public class func log(_ msg: String) {
         print(msg)
     }
 
-    class public func info(_ msg: String) {
+    public class func info(_ msg: String) {
         print(msg)
     }
 
-    class public func warn(_ msg: String) {
+    public class func warn(_ msg: String) {
         print(msg)
     }
 
-    class public func error(_ msg: String) {
+    public class func error(_ msg: String) {
         print(msg)
     }
 }

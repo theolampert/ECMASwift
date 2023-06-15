@@ -1,14 +1,14 @@
 //
 //  JSContext+callAsyncFunction.swift
-//  
+//
 //
 //  Created by Theodore Lampert on 07.06.23.
 //
 
 import JavaScriptCore
 
-extension JSContext {
-    public func callAsyncFunction(key: String, withArguments: [Any] = []) async throws -> JSValue {
+public extension JSContext {
+    func callAsyncFunction(key: String, withArguments: [Any] = []) async throws -> JSValue {
         try await withCheckedThrowingContinuation { continuation in
             let onFulfilled: @convention(block) (JSValue) -> Void = {
                 continuation.resume(returning: $0)
@@ -17,17 +17,17 @@ extension JSContext {
                 let error = NSError(
                     domain: key,
                     code: 0,
-                    userInfo: [NSLocalizedDescriptionKey : "\($0)"]
+                    userInfo: [NSLocalizedDescriptionKey: "\($0)"]
                 )
                 continuation.resume(throwing: error)
             }
             let promiseArgs = [
                 unsafeBitCast(onFulfilled,
-                to: JSValue.self),
+                              to: JSValue.self),
                 unsafeBitCast(onRejected,
-                to: JSValue.self)
+                              to: JSValue.self),
             ]
-            
+
             let promise = self.objectForKeyedSubscript(key)
                 .call(withArguments: withArguments)
             promise?.invokeMethod("then", withArguments: promiseArgs)

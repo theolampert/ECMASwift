@@ -1,6 +1,6 @@
 //
 //  Headers.swift
-//  
+//
 //
 //  Created by Theodore Lampert on 08.06.23.
 //
@@ -37,7 +37,7 @@ class Headers: NSObject, HeadersExports, Codable {
 class HeadersAPI {
     func registerAPIInto(context: JSContext) {
         let headersClass: @convention(block) () -> Headers = {
-            return Headers()
+            Headers()
         }
         context.setObject(
             unsafeBitCast(headersClass, to: AnyObject.self),

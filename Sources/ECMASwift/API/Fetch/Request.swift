@@ -1,6 +1,6 @@
 //
 //  Request.swift
-//  
+//
 //
 //  Created by Theodore Lampert on 15.05.23.
 //
@@ -20,11 +20,11 @@ struct Body: Codable {
 
     init(json: String) {
         self.json = json
-        self.form = nil
+        form = nil
     }
 
     init(form: URLSearchParams) {
-        self.json = nil
+        json = nil
         self.form = form
     }
 
@@ -41,13 +41,12 @@ struct Body: Codable {
         let container = try decoder.singleValueContainer()
 
         if let value = try? container.decode(URLSearchParams.self) {
-            self.json = nil
-            self.form = value
+            json = nil
+            form = value
         } else if let value = try? container.decode(String.self) {
-            self.json = value
-            self.form = nil
-        }
-        else {
+            json = value
+            form = nil
+        } else {
             throw DecodingError.typeMismatch(
                 Body.self,
                 DecodingError.Context(
@@ -76,7 +75,6 @@ struct Body: Codable {
         }
     }
 }
-
 
 struct Request: Codable {
     let body: Body?

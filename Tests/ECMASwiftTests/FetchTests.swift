@@ -15,7 +15,7 @@ final class FetchTests: XCTestCase {
             let brand, description: String
             let images: [String]
         }
-        
+
         let decoder = JSValueDecoder()
         let runtime = ECMASwift()
         _ = runtime.context.evaluateScript("""
@@ -30,7 +30,7 @@ final class FetchTests: XCTestCase {
         """)
         let result = try await runtime.context.callAsyncFunction(key: "fetchProducts")
         let product = try decoder.decode(Product.self, from: result)
-        
+
         let expected = Product(
             discountPercentage: 12.96,
             rating: 4.69,
@@ -43,12 +43,12 @@ final class FetchTests: XCTestCase {
             brand: "Apple",
             description: "An apple mobile which is nothing like apple",
             images: ["https://i.dummyjson.com/data/products/1/1.jpg",
-            "https://i.dummyjson.com/data/products/1/2.jpg",
-            "https://i.dummyjson.com/data/products/1/3.jpg",
-            "https://i.dummyjson.com/data/products/1/4.jpg",
-            "https://i.dummyjson.com/data/products/1/thumbnail.jpg"]
+                     "https://i.dummyjson.com/data/products/1/2.jpg",
+                     "https://i.dummyjson.com/data/products/1/3.jpg",
+                     "https://i.dummyjson.com/data/products/1/4.jpg",
+                     "https://i.dummyjson.com/data/products/1/thumbnail.jpg"]
         )
-        
+
         XCTAssertEqual(expected, product)
     }
 }

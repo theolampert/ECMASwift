@@ -1,13 +1,13 @@
 //
 //  HeadersTests.swift
-//  
+//
 //
 //  Created by Theodore Lampert on 08.06.23.
 //
 
 @testable import ECMASwift
-import JSValueCoder
 import JavaScriptCore
+import JSValueCoder
 import XCTest
 
 final class HeadersTests: XCTestCase {
@@ -22,10 +22,10 @@ final class HeadersTests: XCTestCase {
                 error
             }
         """)!.toDictionary()!["Content-Type"] as? String
-        
+
         XCTAssertEqual(result, "application/json")
     }
-    
+
     func testGetHeader() async throws {
         let runtime = ECMASwift()
         let result = runtime.context.evaluateScript("""
@@ -37,7 +37,7 @@ final class HeadersTests: XCTestCase {
                 error
             }
         """)!.toString()
-        
+
         XCTAssertEqual(result, "application/json")
     }
 }
