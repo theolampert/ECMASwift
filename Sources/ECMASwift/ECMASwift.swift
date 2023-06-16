@@ -1,7 +1,7 @@
 import JavaScriptCore
 
 public struct ECMASwift {
-    public let context: JSContext = JSContext()
+    public let context: JSContext = .init()
 
     public init() {
         registerAPI()

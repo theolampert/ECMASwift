@@ -8,21 +8,13 @@
 import Foundation
 import JavaScriptCore
 
-
 class TimerAPI {
     var timers = [String: Timer]()
-    
+
     let queue = DispatchQueue(label: "timers")
 
-    func clearTimeout(_ identifier: String) {
-        queue.sync {
-            let timer = timers.removeValue(forKey: identifier)
-            timer?.invalidate()
-        }
-    }
-
     func createTimer(callback: JSValue, ms: Double, repeats: Bool) -> String {
-        let timeInterval = ms/1000.0
+        let timeInterval = ms / 1000.0
         let uuid = UUID().uuidString
         queue.sync {
             let timer = Timer.scheduledTimer(
@@ -43,13 +35,13 @@ class TimerAPI {
             callback.call(withArguments: nil)
         }
     }
-    
+
     func registerIntoAPI(context: JSContext) {
         let setTimeout: @convention(block) (JSValue, Double) -> String = { callback, ms in
-            return self.createTimer(callback: callback, ms: ms , repeats: false)
+            self.createTimer(callback: callback, ms: ms, repeats: false)
         }
         let setInterval: @convention(block) (JSValue, Double) -> String = { callback, ms in
-            return self.createTimer(callback: callback, ms: ms, repeats: true)
+            self.createTimer(callback: callback, ms: ms, repeats: true)
         }
         let clearTimeout: @convention(block) (String) -> Void = { timerId in
             self.queue.sync {
@@ -70,4 +62,3 @@ class TimerAPI {
         context.setObject(clearInterval, forKeyedSubscript: "clearInterval" as NSString)
     }
 }
-
