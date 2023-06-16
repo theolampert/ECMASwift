@@ -83,7 +83,6 @@ public class FetchAPI {
                             reject.call(withArguments: ["Failed to create request"])
                             return
                         }
-
                         // Mark the request
                         let (data, response) = try await URLSession.shared.data(for: request)
                         guard let response = (response as? HTTPURLResponse) else {
