@@ -12,6 +12,7 @@ public struct ECMASwift {
         FetchAPI().registerAPIInto(context: context)
         HeadersAPI().registerAPIInto(context: context)
         URLSearchParamsAPI().registerAPIInto(context: context)
+        URLAPI().registerAPIInto(context: context)
         ConsoleAPI().registerAPIInto(context: context)
         TimerAPI().registerIntoAPI(context: context)
     }

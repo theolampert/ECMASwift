@@ -44,7 +44,7 @@ public class FetchAPI {
         ] as [String: Any]
     }
 
-    private func createRequest(url: URL, options: JSValue?) throws -> URLRequest? {
+    private func createRequest(url: Foundation.URL, options: JSValue?) throws -> URLRequest? {
         var request = URLRequest(url: url)
 
         if let options {
@@ -74,7 +74,7 @@ public class FetchAPI {
                 guard let resolve, let reject else { return }
                 Task {
                     do {
-                        guard let url = URL(string: link) else {
+                        guard let url = Foundation.URL(string: link) else {
                             reject.call(withArguments: ["Invalid URL"])
                             return
                         }
