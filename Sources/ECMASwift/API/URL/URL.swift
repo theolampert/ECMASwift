@@ -8,6 +8,8 @@
 import Foundation
 import JavaScriptCore
 
+// https://url.spec.whatwg.org/#api
+
 @objc protocol URLExports: JSExport {
     var `protocol`: String { @objc get @objc set }
     var hostname: String { @objc get @objc set }
