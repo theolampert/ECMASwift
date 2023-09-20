@@ -31,31 +31,36 @@ class URL: NSObject, URLExports {
         return url?.absoluteString ?? ""
     }
     
+    func setURLComponent<T>(_ key: WritableKeyPath<URLComponents, T>, value: T) {
+        guard let url = url else { return }
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        components?[keyPath: key] = value
+        self.url = components?.url
+    }
+    
     var `protocol`: String {
-        get {
-            return url?.scheme ?? ""
-        }
-        set(newValue) {
-            // TODO
-        }
+        get { return url?.scheme ?? "" }
+        set(newValue) { setURLComponent(\.scheme, value: newValue) }
     }
     
     var hostname: String {
-        get {
-            return url?.host ?? ""
-        }
-        set(newValue) {
-            // TODO
-        }
+        get { return url?.host ?? "" }
+        set(newValue) { setURLComponent(\.host, value: newValue) }
+    }
+    
+    var host: String {
+        get { return url?.host ?? "" }
+        set(newValue) { setURLComponent(\.host, value: newValue) }
     }
     
     var pathname: String {
-        get {
-            return url?.path ?? ""
-        }
-        set(newValue) {
-            // TODO
-        }
+        get { return url?.path ?? "" }
+        set(newValue) { setURLComponent(\.path, value: newValue) }
+    }
+    
+    var port: Int? {
+        get { return url?.port }
+        set(newValue) { setURLComponent(\.port, value: newValue) }
     }
     
     var searchParams: URLSearchParams = URLSearchParams()
