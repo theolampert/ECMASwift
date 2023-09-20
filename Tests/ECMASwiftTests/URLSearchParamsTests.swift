@@ -12,12 +12,12 @@ import XCTest
 final class URLSearchParamsTests: XCTestCase {
     let runtime = ECMASwift()
     
-//    func testInitialization() {
-//        let result = runtime.context.evaluateScript("""
-//        let params = new URLSearchParams("lang=swift&version=5.5")
-//        params.getAll("lang")
-//        """)!
-//    }
+    func testInitialization() {
+        let result = runtime.context.evaluateScript("""
+        let params = new URLSearchParams("lang=swift&version=5.5")
+        params.getAll()
+        """)!
+    }
     
     func testAppendingParams() {
         let result = runtime.context.evaluateScript("""

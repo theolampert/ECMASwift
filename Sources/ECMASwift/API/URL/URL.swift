@@ -6,7 +6,10 @@ import JavaScriptCore
 @objc protocol URLExports: JSExport {
     var `protocol`: String { @objc get @objc set }
     var hostname: String { @objc get @objc set }
+    var host: String { @objc get @objc set }
     var pathname: String { @objc get @objc set }
+    var port: String { @objc get @objc set }
+    var origin: String { @objc get @objc set }
     var searchParams: URLSearchParams { @objc get }
     func toString() -> String
 }
@@ -58,9 +61,17 @@ class URL: NSObject, URLExports {
         set(newValue) { setURLComponent(\.path, value: newValue) }
     }
     
-    var port: Int? {
-        get { return url?.port }
-        set(newValue) { setURLComponent(\.port, value: newValue) }
+    var origin: String {
+        get { return url?.host ?? "" }
+        set(newValue) { setURLComponent(\.host, value: newValue) }
+    }
+    
+    var port: String {
+        get {
+            guard let port = url?.port else { return "" }
+            return String(port)
+        }
+        set(newValue) { setURLComponent(\.port, value: Int(newValue)) }
     }
     
     var searchParams: URLSearchParams {
