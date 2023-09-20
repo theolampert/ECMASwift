@@ -3,7 +3,6 @@ import JavaScriptCore
 
 @objc protocol TextEncoderExports: JSExport {
     var encoding: String { get set }
-    
     func encode(_ input: String) -> [UInt8]
 }
 

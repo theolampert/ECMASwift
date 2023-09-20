@@ -9,13 +9,10 @@ import CommonCrypto
 
 @objc class Crypto: NSObject, CryptoExports {
     func getRandomValues(_ array: [UInt32]) -> [UInt32] {
-        // Calculate the size of the buffer needed (in bytes).
         let size = array.count * MemoryLayout<UInt32>.size
         
-        // Create an empty buffer of appropriate size.
         var buffer = [UInt8](repeating: 0, count: size)
         
-        // Fill the buffer with secure random bytes.
         let result = SecRandomCopyBytes(kSecRandomDefault, size, &buffer)
 
         if result == errSecSuccess {
