@@ -1,4 +1,5 @@
 import JavaScriptCore
+import os
 
 @objc protocol ConsoleExports: JSExport {
     static func log(_ msg: String)
@@ -8,20 +9,22 @@ import JavaScriptCore
 }
 
 class Console: NSObject, ConsoleExports {
+    static let logger = Logger(subsystem: "ECMASwift", category: "Console")
+    
     public class func log(_ msg: String) {
-        print(msg)
+        logger.log("\(msg)")
     }
 
     public class func info(_ msg: String) {
-        print(msg)
+        logger.info("\(msg)")
     }
 
     public class func warn(_ msg: String) {
-        print(msg)
+        logger.warning("\(msg)")
     }
 
     public class func error(_ msg: String) {
-        print(msg)
+        logger.error("\(msg)")
     }
 }
 
