@@ -1,5 +1,7 @@
 import Foundation
 
+// https://developer.mozilla.org/en-US/docs/Web/API/Request
+
 enum HTTPMethod: String, Codable {
     case get
     case put

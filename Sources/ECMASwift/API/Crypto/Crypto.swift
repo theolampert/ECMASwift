@@ -2,6 +2,8 @@ import Foundation
 import JavaScriptCore
 import CommonCrypto
 
+// https://developer.mozilla.org/en-US/docs/Web/API/Crypto
+
 @objc protocol CryptoExports: JSExport {
     func getRandomValues(_ array: [UInt32]) -> [UInt32]
     func randomUUID() -> String

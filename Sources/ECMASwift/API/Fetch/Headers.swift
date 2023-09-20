@@ -1,5 +1,7 @@
 import JavaScriptCore
 
+// https://developer.mozilla.org/en-US/docs/Web/API/Headers
+
 @objc public protocol HeadersExports: JSExport {
     func setHeader(_ key: String, _ value: String)
     func getHeader(_ key: String) -> String?

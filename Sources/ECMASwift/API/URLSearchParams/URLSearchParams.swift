@@ -2,6 +2,8 @@ import Foundation
 import JavaScriptCore
 import JSValueCoder
 
+// https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams
+
 @objc protocol URLSearchParamsExports: JSExport {
     var params: [String: [String]] { get }
 
