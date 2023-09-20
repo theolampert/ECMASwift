@@ -2,6 +2,8 @@ import Foundation
 import JavaScriptCore
 import JSValueCoder
 
+// https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+
 public class FetchAPI {
     let decoder = JSValueDecoder()
 

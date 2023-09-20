@@ -1,6 +1,8 @@
 import JavaScriptCore
 import os
 
+// https://developer.mozilla.org/en-US/docs/Web/API/console
+
 @objc protocol ConsoleExports: JSExport {
     static func log(_ msg: String)
     static func info(_ msg: String)

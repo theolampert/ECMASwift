@@ -1,7 +1,7 @@
 import Foundation
 import JavaScriptCore
 
-// https://url.spec.whatwg.org/#api
+// https://developer.mozilla.org/en-US/docs/Web/API/URL
 
 @objc protocol URLExports: JSExport {
     var `protocol`: String { @objc get @objc set }
