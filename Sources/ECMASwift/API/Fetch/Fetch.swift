@@ -1,10 +1,3 @@
-//
-//  FetchAPI.swift
-//
-//
-//  Created by Theodore Lampert on 15.05.23.
-//
-
 import Foundation
 import JavaScriptCore
 import JSValueCoder

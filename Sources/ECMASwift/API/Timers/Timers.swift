@@ -1,10 +1,3 @@
-//
-//  TimerAPI.swift
-//
-//
-//  Created by Theodore Lampert on 15.06.23.
-//
-
 import Foundation
 import JavaScriptCore
 

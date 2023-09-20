@@ -1,10 +1,3 @@
-//
-//  URL.swift
-//  
-//
-//  Created by Theodore Lampert on 26.06.23.
-//
-
 import Foundation
 import JavaScriptCore
 

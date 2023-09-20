@@ -1,10 +1,3 @@
-//
-//  JSContext+callFunction.swift
-//  
-//
-//  Created by Theodore Lampert on 17.06.23.
-//
-
 import JavaScriptCore
 
 public extension JSContext {

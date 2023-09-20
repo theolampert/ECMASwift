@@ -1,10 +1,3 @@
-//
-//  Headers.swift
-//
-//
-//  Created by Theodore Lampert on 08.06.23.
-//
-
 import JavaScriptCore
 
 @objc public protocol HeadersExports: JSExport {

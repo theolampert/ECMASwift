@@ -1,10 +1,3 @@
-//
-//  JSContext+callAsyncFunction.swift
-//
-//
-//  Created by Theodore Lampert on 07.06.23.
-//
-
 import JavaScriptCore
 
 public extension JSContext {

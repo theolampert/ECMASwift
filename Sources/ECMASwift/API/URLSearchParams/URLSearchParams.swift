@@ -1,10 +1,3 @@
-//
-//  URLSearchParams.swift
-//
-//
-//  Created by Theodore Lampert on 14.05.23.
-//
-
 import Foundation
 import JavaScriptCore
 import JSValueCoder

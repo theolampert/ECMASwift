@@ -1,26 +1,30 @@
-//
-//  Crypto.swift
-//  
-//
-//  Created by Theodore Lampert on 28.06.23.
-//
-
 import Foundation
 import JavaScriptCore
 import CommonCrypto
 
 @objc protocol CryptoExports: JSExport {
-    func getRandomValues(_ length: Int) -> [UInt8]
+    func getRandomValues(_ array: [UInt32]) -> [UInt32]
     func randomUUID() -> String
 }
 
 @objc class Crypto: NSObject, CryptoExports {
-    func getRandomValues(_ length: Int) -> [UInt8] {
-        var randomBytes = [UInt8](repeating: 0, count: length)
-        let result = SecRandomCopyBytes(kSecRandomDefault, length, &randomBytes)
+    func getRandomValues(_ array: [UInt32]) -> [UInt32] {
+        // Calculate the size of the buffer needed (in bytes).
+        let size = array.count * MemoryLayout<UInt32>.size
         
+        // Create an empty buffer of appropriate size.
+        var buffer = [UInt8](repeating: 0, count: size)
+        
+        // Fill the buffer with secure random bytes.
+        let result = SecRandomCopyBytes(kSecRandomDefault, size, &buffer)
+
         if result == errSecSuccess {
-            return randomBytes
+            return stride(from: 0, to: buffer.count, by: MemoryLayout<UInt32>.size).map { i in
+                return buffer.withUnsafeBytes { ptr -> UInt32 in
+                    let base = ptr.baseAddress!.assumingMemoryBound(to: UInt32.self)
+                    return base[i / MemoryLayout<UInt32>.size]
+                }
+            }
         } else {
             return []
         }
@@ -33,12 +37,9 @@ import CommonCrypto
 
 struct CryptoAPI {
     public func registerAPIInto(context: JSContext) {
-        let cryptoClass: @convention(block) () -> Crypto = {
-            Crypto()
-        }
         context.setObject(
-            unsafeBitCast(cryptoClass, to: AnyObject.self),
-            forKeyedSubscript: "Crypto" as NSString
+            unsafeBitCast(Crypto(), to: AnyObject.self),
+            forKeyedSubscript: "crypto" as NSString
         )
     }
 }

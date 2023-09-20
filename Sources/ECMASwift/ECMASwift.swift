@@ -16,5 +16,6 @@ public struct ECMASwift {
         ConsoleAPI().registerAPIInto(context: context)
         TimerAPI().registerIntoAPI(context: context)
         TextEncoderAPI().registerAPIInto(context: context)
+        CryptoAPI().registerAPIInto(context: context)
     }
 }

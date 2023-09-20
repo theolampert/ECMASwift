@@ -1,10 +1,3 @@
-//
-//  Request.swift
-//
-//
-//  Created by Theodore Lampert on 15.05.23.
-//
-
 import Foundation
 
 enum HTTPMethod: String, Codable {
