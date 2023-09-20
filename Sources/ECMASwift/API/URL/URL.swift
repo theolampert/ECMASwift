@@ -7,7 +7,7 @@ import JavaScriptCore
     var `protocol`: String { @objc get @objc set }
     var hostname: String { @objc get @objc set }
     var pathname: String { @objc get @objc set }
-    var searchParams: URLSearchParams { @objc get @objc set }
+    var searchParams: URLSearchParams { @objc get }
     func toString() -> String
 }
 
@@ -63,7 +63,9 @@ class URL: NSObject, URLExports {
         set(newValue) { setURLComponent(\.port, value: newValue) }
     }
     
-    var searchParams: URLSearchParams = URLSearchParams()
+    var searchParams: URLSearchParams {
+        get { URLSearchParams("") }
+    }
 }
 
 public struct URLAPI {

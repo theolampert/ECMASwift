@@ -15,6 +15,11 @@ import JSValueCoder
 
 @objc class URLSearchParams: NSObject, URLSearchParamsExports, Decodable, Encodable {
     var params: [String: [String]] = [:]
+    
+    init(_ query: String) {
+        super.init()
+        self.parse(query)
+    }
 
     func parse(_ query: String) {
         let pairs = query.split(separator: "&")
@@ -63,8 +68,12 @@ import JSValueCoder
 
 public struct URLSearchParamsAPI {
     public func registerAPIInto(context: JSContext) {
-        let searchParamsClass: @convention(block) () -> URLSearchParams = {
-            URLSearchParams()
+        let searchParamsClass: @convention(block) (String?) -> URLSearchParams = { query in
+            var _query: String = query ?? ""
+            if query == "undefined" {
+                _query = ""
+            }
+            return URLSearchParams(_query)
         }
         context.setObject(
             unsafeBitCast(searchParamsClass, to: AnyObject.self),
