@@ -2,15 +2,16 @@ import Foundation
 import JavaScriptCore
 
 @objc protocol TextEncoderExports: JSExport {
-    func encode(_ input: String) -> Data?
+    var encoding: String { get set }
+    
+    func encode(_ input: String) -> [UInt8]
 }
 
 class TextEncoder: NSObject, TextEncoderExports {
-    func encode(_ input: String) -> Data? {
-        if let data = input.data(using: .utf8) {
-            return data
-        }
-        return nil
+    var encoding: String = "utf-8"
+    
+    func encode(_ input: String) -> [UInt8] {
+        return Array(input.utf8)
     }
 }
 
