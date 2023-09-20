@@ -10,11 +10,12 @@ import JavaScriptCore
 import CommonCrypto
 
 @objc protocol CryptoExports: JSExport {
-    func getRandomBytes(_ length: Int) -> [UInt8]
+    func getRandomValues(_ length: Int) -> [UInt8]
+    func randomUUID() -> String
 }
 
 @objc class Crypto: NSObject, CryptoExports {
-    func getRandomBytes(_ length: Int) -> [UInt8] {
+    func getRandomValues(_ length: Int) -> [UInt8] {
         var randomBytes = [UInt8](repeating: 0, count: length)
         let result = SecRandomCopyBytes(kSecRandomDefault, length, &randomBytes)
         
@@ -24,10 +25,20 @@ import CommonCrypto
             return []
         }
     }
+    
+    func randomUUID() -> String {
+        return UUID().uuidString
+    }
 }
 
 struct CryptoAPI {
     public func registerAPIInto(context: JSContext) {
-        
+        let cryptoClass: @convention(block) () -> Crypto = {
+            Crypto()
+        }
+        context.setObject(
+            unsafeBitCast(cryptoClass, to: AnyObject.self),
+            forKeyedSubscript: "Crypto" as NSString
+        )
     }
 }
