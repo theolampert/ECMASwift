@@ -3,88 +3,11 @@ import JavaScriptCore
 
 // https://developer.mozilla.org/en-US/docs/Web/API/Request
 
-//enum HTTPMethod: String, Codable {
-//    case get
-//    case put
-//    case delete
-//    case post
-//}
-//
-//struct Body: Codable {
-//    let json: String?
-//    let form: URLSearchParams?
-//
-//    init(json: String) {
-//        self.json = json
-//        form = nil
-//    }
-//
-//    init(form: URLSearchParams) {
-//        json = nil
-//        self.form = form
-//    }
-//
-//    var value: Any? {
-//        if let json = json {
-//            return json
-//        } else if let form = form {
-//            return form
-//        }
-//        return nil
-//    }
-//
-//    init(from decoder: Decoder) throws {
-//        let container = try decoder.singleValueContainer()
-//
-//        if let value = try? container.decode(URLSearchParams.self) {
-//            json = nil
-//            form = value
-//        } else if let value = try? container.decode(String.self) {
-//            json = value
-//            form = nil
-//        } else {
-//            throw DecodingError.typeMismatch(
-//                Body.self,
-//                DecodingError.Context(
-//                    codingPath: decoder.codingPath,
-//                    debugDescription: "Invalid property type"
-//                )
-//            )
-//        }
-//    }
-//
-//    func encode(to encoder: Encoder) throws {
-//        var container = encoder.singleValueContainer()
-//
-//        if let json = json {
-//            try container.encode(json)
-//        } else if let form = form {
-//            try container.encode(form)
-//        } else {
-//            throw EncodingError.invalidValue(
-//                self,
-//                EncodingError.Context(
-//                    codingPath: encoder.codingPath,
-//                    debugDescription: "Invalid property value"
-//                )
-//            )
-//        }
-//    }
-//}
-
-//struct Request: Codable {
-//    let body: Body?
-//    let credentials: String?
-//    let method: HTTPMethod?
-//    let headers: [String: String]?
-//    let mode: String?
-//}
-
 // TODO: Probably eventually needs to model a ReadableStream properly
 enum Body: Codable {
     case blob(Data)
-    case arrayBuffer(Data)
-    case typedArray(Data)
+    case arrayBuffer([Data])
+    case typedArray([UInt])
     case dataView(Data)
     case formData(Data)
     case urlSearchParams(URLSearchParams)
@@ -156,15 +79,36 @@ enum Body: Codable {
         }
     }
     
-    func arrayBuffer() {}
+    func arrayBuffer() -> Data? {
+        return body?.data()
+    }
     
-    func blob() {}
+    func blob() -> Data? {
+        return body?.data()
+    }
     
-    func clone() {}
+    func clone() -> Request {
+        return Request(url: self.url)
+    }
     
-    func formData() {}
+    func formData() -> [String: String]? {
+        guard case let .formData(data) = body else { return nil }
+        let formString = String(data: data, encoding: .utf8) ?? ""
+        var formData: [String: String] = [:]
+        
+        formString.components(separatedBy: "&").forEach {
+            let keyValue = $0.components(separatedBy: "=")
+            if keyValue.count == 2 {
+                formData[keyValue[0]] = keyValue[1]
+            }
+        }
+        return formData
+    }
     
-    func json() {}
+    func json() -> Any? {
+        guard let data = body?.data() else { return nil }
+        return try? JSONSerialization.jsonObject(with: data, options: [])
+    }
     
     func text() -> String? {
         switch body {
