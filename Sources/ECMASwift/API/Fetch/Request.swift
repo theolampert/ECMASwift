@@ -42,6 +42,25 @@ enum Body: Codable {
             return string.data(using: .utf8)
         }
     }
+    
+    func string() -> String? {
+        switch self {
+        case .blob(_):
+            fatalError("Unimplemented")
+        case .arrayBuffer(_):
+            fatalError("Unimplemented")
+        case .typedArray(_):
+            fatalError("Unimplemented")
+        case .dataView(_):
+            fatalError("Unimplemented")
+        case .formData(_):
+            fatalError("Unimplemented")
+        case .urlSearchParams(let uRLSearchParams):
+            return uRLSearchParams.toString()
+        case .string(let string):
+            return string
+        }
+    }
 }
 
 @objc public protocol RequestExports: JSExport {
@@ -49,9 +68,10 @@ enum Body: Codable {
     var method: String? { get }
     
     func text() -> String?
+    func blob() -> JSValue?
 }
 
-@objc class Request: NSObject, RequestExports, Codable {
+@objc class Request: NSObject, RequestExports {
     var body: Body?
     var bodyUsed: Bool = false
     var cache: String?
@@ -67,6 +87,7 @@ enum Body: Codable {
 //    var signal: AbortSignal
     var url: String
     
+    weak var context: JSContext?
     
     init(url: String, options: [AnyHashable: Any]? = nil) {
         self.url = url
@@ -83,8 +104,23 @@ enum Body: Codable {
         return body?.data()
     }
     
-    func blob() -> Data? {
-        return body?.data()
+    func blob() -> JSValue? {
+        guard let context = context else {
+            fatalError("JSContext is nil")
+        }
+        
+        return JSValue(newPromiseIn: context) { (resolve, reject) in
+//            guard let data = self.body?.data() else {
+//                let errorDescription = JSValue(object: "Unable to extract blob data", in: context)
+//                reject?.call(withArguments: [errorDescription])
+//                return
+//            }
+              // The Data should be converted to a suitable JSValue or a JS object, depending on your requirements.
+//            let blobObject = JSValue(object: data.base64EncodedString(), in: context)
+            let blob = Blob(_text: self.body!.string()!)
+            blob.context = context
+            resolve?.call(withArguments: [blob])
+        }
     }
     
     func clone() -> Request {
@@ -134,12 +170,64 @@ enum Body: Codable {
 
 struct RequestAPI {
     func registerAPIInto(context: JSContext) {
-        let headersClass: @convention(block) (String, JSValue?) -> Request = { url, options in
-            return Request(url: url, options: options?.toDictionary())
+        let requestClass: @convention(block) (String, JSValue?) -> Request = { url, options in
+            let request = Request(url: url, options: options?.toDictionary())
+            request.context = context
+            return request
         }
+
         context.setObject(
-            unsafeBitCast(headersClass, to: AnyObject.self),
+            unsafeBitCast(requestClass, to: AnyObject.self),
             forKeyedSubscript: "Request" as NSString
+        )
+    }
+}
+
+@objc public protocol BlobExports: JSExport {
+//    var url: String { get }
+//    var method: String? { get }
+    
+    func text() -> JSValue?
+}
+
+
+@objc class Blob: NSObject, BlobExports {
+    var _text: String?
+    
+    weak var context: JSContext?
+    
+    init(_text: String? = nil) {
+        self._text = _text
+    }
+    
+    func text() -> JSValue? {
+        guard let context = context else {
+            fatalError("JSContext is nil")
+        }
+        
+        return JSValue(newPromiseIn: context) { (resolve, reject) in
+            guard let data = self._text else {
+                let errorDescription = JSValue(object: "Unable to extract blob data", in: context)
+                reject?.call(withArguments: [errorDescription])
+                return
+            }
+            let blobObject = JSValue(object: data, in: context)
+            resolve?.call(withArguments: [blobObject])
+        }
+    }
+}
+
+struct BlobAPI {
+    func registerAPIInto(context: JSContext) {
+        let blobClass: @convention(block) (String) -> Blob = { text in
+            let blob = Blob(_text: text)
+            blob.context = context
+            return blob
+        }
+
+        context.setObject(
+            unsafeBitCast(blobClass, to: AnyObject.self),
+            forKeyedSubscript: "Blob" as NSString
         )
     }
 }
