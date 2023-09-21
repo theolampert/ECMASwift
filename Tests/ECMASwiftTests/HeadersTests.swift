@@ -1,11 +1,4 @@
-//
-//  HeadersTests.swift
-//
-//
-//  Created by Theodore Lampert on 08.06.23.
-//
-
-@testable import ECMASwift
+import ECMASwift
 import JavaScriptCore
 import JSValueCoder
 import XCTest

@@ -49,13 +49,9 @@ public class FetchAPI {
             )
 
             if let body = requestOptions.body {
-                if let form = body.form {
-                    request.httpBody = form.toString().data(using: .utf8)
-                } else if let json = body.json {
-                    request.httpBody = try JSONSerialization.data(withJSONObject: json)
-                }
+                request.httpBody = body.data()
             }
-            if let method = requestOptions.method?.rawValue {
+            if let method = requestOptions.method {
                 request.httpMethod = method
             }
         }

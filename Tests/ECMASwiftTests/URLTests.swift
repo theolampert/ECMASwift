@@ -51,7 +51,6 @@ final class URLTests: XCTestCase {
         let result = runtime.context.evaluateScript("""
         let url = new URL("https://foobar.com")
         url.searchParams.set("foo", "bar")
-        url.searchParams.get("foo")
         url.toString()
         """)
         XCTAssertEqual(result!.toString(), "https://foobar.com?foo=bar")
