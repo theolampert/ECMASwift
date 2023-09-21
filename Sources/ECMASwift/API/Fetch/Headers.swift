@@ -29,7 +29,7 @@ class Headers: NSObject, HeadersExports, Codable {
     }
 }
 
-class HeadersAPI {
+struct HeadersAPI {
     func registerAPIInto(context: JSContext) {
         let headersClass: @convention(block) () -> Headers = {
             Headers()

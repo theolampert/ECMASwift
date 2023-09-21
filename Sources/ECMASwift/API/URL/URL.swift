@@ -62,8 +62,22 @@ class URL: NSObject, URLExports {
     }
     
     var origin: String {
-        get { return url?.host ?? "" }
-        set(newValue) { setURLComponent(\.host, value: newValue) }
+        get {
+            guard let scheme = url?.scheme, let host = url?.host else {
+                return ""
+            }
+                
+            var origin = "\(scheme)://\(host)"
+            
+            if let port = url?.port {
+                origin.append(":\(port)")
+            }
+            
+            return origin
+        }
+        set(newValue) {
+            setURLComponent(\.host, value: newValue)
+        }
     }
     
     var port: String {
