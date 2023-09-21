@@ -42,16 +42,11 @@ public class FetchAPI {
     private func createRequest(url: Foundation.URL, options: JSValue?) throws -> URLRequest? {
         var request = URLRequest(url: url)
 
-        if let options {
-            let requestOptions = try decoder.decode(
-                Request.self,
-                from: options
-            )
-
-            if let body = requestOptions.body {
+        if let options, let requestOptions = options.toDictionary() {
+            if let body = requestOptions["body"] as? Body {
                 request.httpBody = body.data()
             }
-            if let method = requestOptions.method {
+            if let method = requestOptions["method"] as? String {
                 request.httpMethod = method
             }
         }

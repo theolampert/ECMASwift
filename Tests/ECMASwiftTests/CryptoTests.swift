@@ -39,14 +39,6 @@ final class CryptoTests: XCTestCase {
         populatedArray
         """)!
         XCTAssertTrue(resultUint8.toArray()!.allSatisfy { ($0 as! UInt) != 0 })
-
-        // Testing with a Int16Array
-//        let resultInt16 = runtime.context.evaluateScript("""
-//        let array = new Int16Array(10)
-//        let populatedArray = crypto.getRandomValues(array)
-//        populatedArray
-//        """)!
-//        XCTAssertTrue(resultInt16.toArray()!.allSatisfy { ($0 as! UInt) != 0 })
     }
 
     func testGetRandomValuesLargeArray() {
