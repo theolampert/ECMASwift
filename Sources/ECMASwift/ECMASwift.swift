@@ -4,10 +4,10 @@ public struct ECMASwift {
     public let context: JSContext = .init()
 
     public init() {
-        registerAPI()
+        registerAPIs()
     }
 
-    private func registerAPI() {
+    private func registerAPIs() {
         // Runtime APIs
         BlobAPI().registerAPIInto(context: context)
         RequestAPI().registerAPIInto(context: context)
