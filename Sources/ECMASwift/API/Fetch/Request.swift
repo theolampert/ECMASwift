@@ -3,8 +3,14 @@ import JavaScriptCore
 
 // https://developer.mozilla.org/en-US/docs/Web/API/Request
 
+extension JSValue {
+    func toType<T>(_ type: T.Type) -> T? {
+        return self.toObject() as? T
+    }
+}
+
 // TODO: Probably eventually needs to model a ReadableStream properly
-enum Body: Codable {
+enum Body {
     case blob(Data)
     case arrayBuffer([Data])
     case typedArray([UInt])
@@ -13,15 +19,13 @@ enum Body: Codable {
     case urlSearchParams(URLSearchParams)
     case string(String)
     
-    static func createFrom(_ value: Any) throws -> Body? {
-        switch value {
-        case let value as URLSearchParams:
-            return .urlSearchParams(value)
-        case let value as String:
-            return .string(value)
-        default:
-            return nil
+    static func createFrom(_ jsValue: JSValue) -> Body? {
+        if let searchParamsValue = jsValue.toType(URLSearchParams.self) {
+            return .urlSearchParams(searchParamsValue)
+        } else if let stringValue = jsValue.toString() {
+            return .string(stringValue)
         }
+        return nil
     }
     
     func data() -> Data? {
@@ -89,13 +93,13 @@ enum Body: Codable {
     
     weak var context: JSContext?
     
-    init(url: String, options: [AnyHashable: Any]? = nil) {
+    init(url: String, options: JSValue? = nil) {
         self.url = url
         
         if let options {
-            self.method = options["method"] as? String
-            if let body = options["body"] {
-                self.body = try? .createFrom(body)
+            self.method = options.forProperty("method").toString()
+            if let body = options.forProperty("body") {
+                self.body = Body.createFrom(body)
             }
         }
     }
@@ -164,7 +168,7 @@ enum Body: Codable {
 struct RequestAPI {
     func registerAPIInto(context: JSContext) {
         let requestClass: @convention(block) (String, JSValue?) -> Request = { url, options in
-            let request = Request(url: url, options: options?.toDictionary())
+            let request = Request(url: url, options: options)
             request.context = context
             return request
         }
