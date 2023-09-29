@@ -43,7 +43,11 @@ public class FetchAPI {
         var request = URLRequest(url: url)
 
         if let options {
-            if let body = options.forProperty("body"), let body = try? Body.createFrom(body) {
+            let headers = options.toDictionary()["headers"] as? [String: String]
+            headers?.forEach { (key, value) in
+                request.setValue(value, forHTTPHeaderField: key)
+            }
+            if let body = options.forProperty("body"), let body = Body.createFrom(body) {
                 request.httpBody = body.data()
             }
             if let method = options.forProperty("method").toString() {
