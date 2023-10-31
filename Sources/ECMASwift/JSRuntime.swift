@@ -1,6 +1,23 @@
 import JavaScriptCore
 
-public struct ECMASwift {
+/// `JSRuntime` wraps a `JSContext` and implements a few missing browser APIs
+/// (mostly networking related, fetch, request etc.), which are then registered with the context.
+/// So, a `JSRuntime` can be used as headless browser to execute ``LTCore``.
+///
+/// The following browser APIs are implemented in Swift and added to the JSContext:
+///
+/// - ``Blob``
+/// - ``AbortController``
+/// - ``Request``
+/// - ``Fetch``
+/// - ``Headers``
+/// - ``URLSearchParams``
+/// - ``URL``
+/// - ``Console``
+/// - ``Timer``
+/// - ``TextEncoder``
+/// - ``Crypto``
+public struct JSRuntime {
     public let context: JSContext = .init()
 
     public init() {
@@ -10,6 +27,7 @@ public struct ECMASwift {
     private func registerAPIs() {
         // Runtime APIs
         BlobAPI().registerAPIInto(context: context)
+        AbortControllerAPI().registerAPIInto(context: context)
         RequestAPI().registerAPIInto(context: context)
         FetchAPI().registerAPIInto(context: context)
         HeadersAPI().registerAPIInto(context: context)

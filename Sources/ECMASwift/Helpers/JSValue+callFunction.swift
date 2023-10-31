@@ -1,11 +1,7 @@
 import JavaScriptCore
 
-public extension JSContext {
-    func callFunction(key: String, withArguments: [Any] = []) throws -> JSValue? {
-        return objectForKeyedSubscript(key)
-            .call(withArguments: withArguments)
-    }
-
+public extension JSValue {
+    
     /// Calls and invidual async function identified by `key`.
     ///
     /// - Parameters:
@@ -30,19 +26,19 @@ public extension JSContext {
                 unsafeBitCast(onRejected, to: JSValue.self),
             ]
 
-            let promise = self.objectForKeyedSubscript(key)
-                .call(withArguments: withArguments)
+            let promise = call(withArguments: withArguments)
             promise?.invokeMethod("then", withArguments: promiseArgs)
         }
     }
 
+    
     /// Calls an async function `methodKey` on the object identified by `key`.
     ///
     /// - Parameters:
     ///   - methodKey: The identifier of the method
     ///   - withArguments: Optional arguments
     /// - Returns: The return value of the function
-    func invokeAsyncMethod(key: String, methodKey: String, withArguments: [Any] = []) async throws -> JSValue {
+    func invokeAsyncMethod(methodKey: String, withArguments: [Any] = []) async throws -> JSValue {
         try await withCheckedThrowingContinuation { continuation in
 
            let onFulfilled: @convention(block) (JSValue) -> Void = {
@@ -58,7 +54,7 @@ public extension JSContext {
                }
                
                let error = NSError(
-                   domain: key,
+                   domain: methodKey,
                    code: 0,
                    userInfo: [NSLocalizedDescriptionKey: errorDescription]
                )
@@ -70,10 +66,10 @@ public extension JSContext {
                unsafeBitCast(onRejected, to: JSValue.self),
            ]
 
-           guard let promise = self.objectForKeyedSubscript(key).invokeMethod(methodKey, withArguments: withArguments),
+           guard let promise = invokeMethod(methodKey, withArguments: withArguments),
                 promise.isNotNil else {
                    let error = NSError(
-                       domain: key,
+                       domain: methodKey,
                        code: 1,
                        userInfo: [
                            NSLocalizedDescriptionKey: "JavaScript execution failed or returned an unexpected value."
@@ -86,5 +82,4 @@ public extension JSContext {
            promise.invokeMethod("then", withArguments: promiseArgs)
        }
     }
-
 }

@@ -1,17 +1,20 @@
-import Foundation
-import JavaScriptCore
-import JSValueCoder
+@preconcurrency import JavaScriptCore
 
-// https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+/// This implmenets the `Fetch` browser API.
+///
+/// Reference: [Fetch API Reference on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+public final class FetchAPI {
+    let session: URLSession
+    
+    public init(session: URLSession = URLSession.shared) {
+        self.session = session
+    }
 
-public class FetchAPI {
-    let decoder = JSValueDecoder()
-
-    private func text(data: Data) -> Any? {
+    func text(data: Data) -> Any? {
         return String(data: data, encoding: .utf8)
     }
 
-    private func json(data: Data) -> Any? {
+    func json(data: Data) -> Any? {
         do {
             return try JSONSerialization.jsonObject(
                 with: data, options: []
@@ -21,60 +24,42 @@ public class FetchAPI {
         }
     }
 
-    private func createResponse(
+    func createResponse(
         response: HTTPURLResponse,
-        data: Data
+        data: Data,
+        context: JSContext
     ) -> [String: Any] {
-        let jsonjs: @convention(block) () -> Any? = {
-            self.json(data: data)
+        let jsonjs: @convention(block) () -> Any? = { [weak self] in
+            self?.json(data: data)
         }
-        let textjs: @convention(block) () -> Any? = {
-            self.text(data: data)
+        let textjs: @convention(block) () -> Any? = { [weak self] in
+            self?.text(data: data)
         }
         return [
             "ok": true,
             "status": response.statusCode,
-            "json": unsafeBitCast(jsonjs, to: JSValue.self),
-            "text": unsafeBitCast(textjs, to: JSValue.self),
+            "json": JSValue(object: jsonjs, in: context) as Any,
+            "text": JSValue(object: textjs, in: context) as Any,
         ] as [String: Any]
     }
 
-    private func createRequest(url: Foundation.URL, options: JSValue?) throws -> URLRequest? {
-        var request = URLRequest(url: url)
-
-        if let options {
-            let headers = options.toDictionary()["headers"] as? [String: String]
-            headers?.forEach { (key, value) in
-                request.setValue(value, forHTTPHeaderField: key)
-            }
-            if let body = options.forProperty("body"), let body = Body.createFrom(body) {
-                request.httpBody = body.data()
-            }
-            if let method = options.forProperty("method").toString() {
-                request.httpMethod = method
-            }
-        }
-
-        return request
+    func createRequest(url: String, options: JSValue?) -> URLRequest? {
+        return Request(url: url, options: options).request
     }
-
+    
     public func registerAPIInto(context: JSContext) {
-        let fetch: @convention(block) (String, JSValue?) -> JSValue? = { link, options in
+        let fetch: @convention(block) (String, JSValue?) -> JSValue? = { url, options in
+            var fetchTask: Task<Void, Never>?
             let promise = JSValue(newPromiseIn: context) { resolve, reject in
                 guard let resolve, let reject else { return }
-                Task {
+                guard let request = self.createRequest(url: url, options: options) else {
+                    reject.call(withArguments: ["Failed to create request"])
+                    return
+                }
+                let session = self.session
+                fetchTask = Task {
                     do {
-                        guard let url = Foundation.URL(string: link) else {
-                            reject.call(withArguments: ["Invalid URL"])
-                            return
-                        }
-
-                        guard let request = try self.createRequest(url: url, options: options) else {
-                            reject.call(withArguments: ["Failed to create request"])
-                            return
-                        }
-                        // Mark the request
-                        let (data, response) = try await URLSession.shared.data(for: request)
+                        let (data, response) = try await session.data(for: request)
                         guard let response = (response as? HTTPURLResponse) else {
                             reject.call(withArguments: ["URL is empty"])
                             return
@@ -82,12 +67,20 @@ public class FetchAPI {
                         resolve.call(withArguments: [
                             self.createResponse(
                                 response: response,
-                                data: data
+                                data: data,
+                                context: context
                             ),
                         ])
                     } catch {
-                        debugPrint(error)
-                        reject.call(withArguments: [error])
+                        reject.call(withArguments: ["\(error.localizedDescription)"])
+                    }
+                }
+                if let signal = options?.forProperty("signal").toType(AbortSignal.self) {
+                    signal.onAbort = {
+                        if signal.aborted {
+                            fetchTask?.cancel()
+                            reject.call(withArguments: [["name": "AbortError"]])
+                        }
                     }
                 }
             }
