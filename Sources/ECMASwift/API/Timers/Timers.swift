@@ -1,7 +1,14 @@
 import JavaScriptCore
 import os.lock
 
-class TimerAPI {
+/// This implmenets several timer related browser APIs.`
+///
+/// References:
+/// - [setTimeout()](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout)
+/// - [setInterval()](https://developer.mozilla.org/en-US/docs/Web/API/setInterval)
+/// - [clearTimeout()](https://developer.mozilla.org/en-US/docs/Web/API/clearTimeout)
+/// - [clearInterval()](https://developer.mozilla.org/en-US/docs/Web/API/clearInterval)
+final class TimerAPI {
     var timers = [String: Timer]()
 
     private var lock = os_unfair_lock_s()
@@ -13,28 +20,28 @@ class TimerAPI {
             if let callback = callback, callback.isObject {
                 callback.call(withArguments: [])
             }
-            
+
             if !repeats {
                 os_unfair_lock_lock(&self!.lock)
                 self?.timers[uuid] = nil
                 os_unfair_lock_unlock(&self!.lock)
             }
         }
-        
+
         os_unfair_lock_lock(&lock)
         timers[uuid] = timer
         os_unfair_lock_unlock(&lock)
-        
+
         RunLoop.main.add(timer, forMode: .common)
 
         return uuid
     }
-    
-    public func invalidateTimer(with id: String) {
+
+    func invalidateTimer(with id: String) {
         os_unfair_lock_lock(&lock)
         let timerInfo = timers.removeValue(forKey: id)
         os_unfair_lock_unlock(&lock)
-        
+
         timerInfo?.invalidate()
     }
 
