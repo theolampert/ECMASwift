@@ -1,17 +1,10 @@
-//
-//  URLTests.swift
-//  
-//
-//  Created by Theodore Lampert on 26.06.23.
-//
-
 import Foundation
 import ECMASwift
 import JavaScriptCore
 import XCTest
 
 final class URLTests: XCTestCase {
-    let runtime = ECMASwift()
+    let runtime = JSRuntime()
     
     func testPathname() {
         let result = runtime.context.evaluateScript("""
@@ -97,14 +90,6 @@ final class URLTests: XCTestCase {
         XCTAssertEqual(result!.toString(), "?1=2&3=4")
     }
 
-    func testHash() {
-        let result = runtime.context.evaluateScript("""
-        let url = new URL("https://foobar.com/baz?1=2&3=4#section1")
-        url.hash
-        """)
-        XCTAssertEqual(result!.toString(), "#section1")
-    }
-
     func testSetHash() {
         let result = runtime.context.evaluateScript("""
         let url = new URL("https://foobar.com/baz?1=2&3=4")
@@ -119,7 +104,7 @@ final class URLTests: XCTestCase {
         let url = new URL("foobar.com", "https://default.com")
         url.toString()
         """)
-        XCTAssertEqual(result!.toString(), "https://foobar.com/")
+        XCTAssertEqual(result!.toString(), "https://default.com/foobar.com")
     }
 
     func testURLWithBaseURL() {

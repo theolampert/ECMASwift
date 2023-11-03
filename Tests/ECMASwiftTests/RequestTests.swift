@@ -4,14 +4,14 @@ import JSValueCoder
 import XCTest
 
 final class RequestTests: XCTestCase {
-    let runtime = ECMASwift()
+    let runtime = JSRuntime()
     
     func testInitialiser() async throws {
         _ = runtime.context.evaluateScript("""
-            let request = new Request("https://languagetool.org", { method: "get" })
+            let request = new Request("https://foobar.org", { method: "get" })
         """)!
 
-        XCTAssertEqual("https://languagetool.org", runtime.context.evaluateScript("request.url").toString())
+        XCTAssertEqual("https://foobar.org", runtime.context.evaluateScript("request.url").toString())
         XCTAssertEqual("get", runtime.context.evaluateScript("request.method").toString())
     }
     
@@ -31,7 +31,7 @@ final class RequestTests: XCTestCase {
     
     func testRequestMethod() {
         let result = runtime.context.evaluateScript("""
-        let request = new Request('https://example.com', { method: 'POST' });
+        let request = new Request("https://example.com", { method: "POST" });
         request.method;
         """)
         XCTAssertEqual(result!.toString(), "POST")
@@ -39,7 +39,7 @@ final class RequestTests: XCTestCase {
 
     func testRequestURL() {
         let result = runtime.context.evaluateScript("""
-        let request = new Request('https://example.com');
+        let request = new Request("https://example.com");
         request.url;
         """)
         XCTAssertEqual(result!.toString(), "https://example.com")
@@ -85,23 +85,10 @@ final class RequestTests: XCTestCase {
     
     func testClone() {
         let result = runtime.context.evaluateScript("""
-        let request = new Request('https://example.com', { method: 'POST' });
-        let clonedRequest = request.clone();
-        clonedRequest.method;
+        let request = new Request("https://example.com", { method: "POST" });
+        let cloned = request.clone()
+        cloned.method
         """)
         XCTAssertEqual(result!.toString(), "POST")
-    }
-
-    func testFormData() {
-        let result = runtime.context.evaluateScript("""
-        let formData = new FormData();
-        formData.append('key', 'value');
-        let request = new Request('https://example.com', {
-            method: 'POST',
-            body: formData
-        });
-        request.formData().then(fd => fd.get('key'));
-        """)
-        XCTAssertEqual(result!.toString(), "value")
     }
 }

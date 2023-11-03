@@ -3,7 +3,7 @@ import XCTest
 import JavaScriptCore
 
 final class BlobAPITests: XCTestCase {
-    let runtime = ECMASwift()
+    let runtime = JSRuntime()
     
     func testBlobCreation() {
         let expectedContent = "Hello, World!"

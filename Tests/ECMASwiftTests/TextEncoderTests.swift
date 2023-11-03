@@ -4,7 +4,7 @@ import JavaScriptCore
 import XCTest
 
 final class TextEncoderTests: XCTestCase {
-    let runtime = ECMASwift()
+    let runtime = JSRuntime()
     
     func testEncodingSimpleText() {
         let result = runtime.context.evaluateScript("""

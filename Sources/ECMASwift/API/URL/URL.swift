@@ -1,7 +1,9 @@
 import Foundation
 import JavaScriptCore
 
-@objc
+// https://developer.mozilla.org/en-US/docs/Web/API/URL
+
+@objc 
 protocol URLExports: JSExport {
     var `protocol`: String { get set }
     var hostname: String { get set }
@@ -11,14 +13,14 @@ protocol URLExports: JSExport {
     var origin: String { get set }
     var searchParams: URLSearchParams { get }
     var search: String { get set }
-    var fragment: String { get set } /// This is `hash` in the actual API but it collides here, needs a different solution.
+    var fragment: String { get set }
     func toString() -> String
 }
+
 
 /// This implmenets the `URL` browser API.
 ///
 /// Reference: [URL Reference on MDN](https://developer.mozilla.org/en-US/docs/Web/API/URL)
-@objc
 final class URL: NSObject, URLExports {
     var url: Foundation.URL?
 
@@ -110,7 +112,6 @@ final class URL: NSObject, URLExports {
             return "?" + query
         }
         set(newValue) {
-            print(newValue)
             setURLComponent(\.query, value: newValue)
         }
     }

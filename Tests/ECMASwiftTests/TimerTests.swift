@@ -5,7 +5,7 @@ import XCTest
 
 
 final class TimerAPITests: XCTestCase {
-    let runtime = ECMASwift()
+    let runtime = JSRuntime()
     
     func testSetTimeout() {
         let expectation = self.expectation(description: "setTimeout should execute")

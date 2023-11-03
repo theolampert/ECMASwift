@@ -1,5 +1,7 @@
 import JavaScriptCore
 
+// https://developer.mozilla.org/en-US/docs/Web/API/Headers
+
 @objc 
 protocol HeadersExports: JSExport {
     func set(_ key: String, _ value: String)

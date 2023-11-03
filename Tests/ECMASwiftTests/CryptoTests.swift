@@ -4,7 +4,7 @@ import JavaScriptCore
 import XCTest
 
 final class CryptoTests: XCTestCase {
-    let runtime = ECMASwift()
+    let runtime = JSRuntime()
     
     func testGetRandomValues() {
         let result = runtime.context.evaluateScript("""

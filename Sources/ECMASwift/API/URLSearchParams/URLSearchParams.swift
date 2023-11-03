@@ -1,9 +1,13 @@
 import JavaScriptCore
+import JSValueCoder
+
+// https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams
 
 @objc 
 protocol URLSearchParamsExports: JSExport {
+    var params: [String: [String]] { get }
     func append(_ key: String, _ value: String)
-    func getAll(_ key: String) -> [String]
+    func getAll(_ key: String) -> [String]?
     func get(_ key: String) -> String?
     func set(_ key: String, _ value: String)
     func delete(_ key: String)
@@ -13,79 +17,82 @@ protocol URLSearchParamsExports: JSExport {
 /// This implmenets the `URLSearchParams` browser API.
 ///
 /// Reference: [URLSearchParams Reference on MDN](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)
-@objc
-final class URLSearchParams: NSObject, URLSearchParamsExports {
-    private var urlComponents: URLComponents
+final class URLSearchParams: NSObject, URLSearchParamsExports, Decodable, Encodable {
+    private var orderedKeys: [String] = []
+    var params: [String: [String]] = [:]
 
-    override init() {
-        self.urlComponents = URLComponents()
+    init(_ query: String = "") {
         super.init()
+        parse(query)
     }
 
-    init(_ query: String) {
-        self.urlComponents = URLComponents()
-        super.init()
-        self.urlComponents.query = query
-    }
-
-    // Append a new query item
-    func append(_ name: String, _ value: String) {
-        let newItem = URLQueryItem(name: name, value: value)
-        if urlComponents.queryItems != nil {
-            urlComponents.queryItems?.append(newItem)
-        } else {
-            urlComponents.queryItems = [newItem]
+    func parse(_ query: String) {
+        let pairs = query.split(separator: "&")
+        for pair in pairs {
+            let keyValue = pair.split(separator: "=")
+            let key = String(keyValue[0])
+            let value = String(keyValue[1])
+            append(key, value)
         }
     }
 
-    // Get all values for a specific query name
-    func getAll(_ name: String) -> [String] {
-        return urlComponents.queryItems?.filter { $0.name == name }.compactMap { $0.value } ?? []
+    func append(_ key: String, _ value: String) {
+        if params[key] == nil {
+            orderedKeys.append(key)
+            params[key] = []
+        }
+        params[key]?.append(value)
     }
 
-    // Get the first value for a specific query name
-    func get(_ name: String) -> String? {
-        return urlComponents.queryItems?.first(where: { $0.name == name })?.value
+    func getAll(_ key: String) -> [String]? {
+        return params[key]
     }
 
-    // Set a value for a specific query name, replacing existing values
-    func set(_ name: String, _ value: String) {
-        // Remove existing items
-        urlComponents.queryItems = urlComponents.queryItems?.filter { $0.name != name }
-        // Append the new item
-        append(name, value)
+    func get(_ key: String) -> String? {
+        return params[key]?.first
     }
 
-    // Delete all values for a specific query name
-    func delete(_ name: String) {
-        urlComponents.queryItems = urlComponents.queryItems?.filter { $0.name != name }
+    func set(_ key: String, _ value: String) {
+        if params[key] == nil {
+            orderedKeys.append(key)
+        }
+        params[key] = [value]
     }
-    
+
+    func delete(_ key: String) {
+        params.removeValue(forKey: key)
+        if let index = orderedKeys.firstIndex(of: key) {
+            orderedKeys.remove(at: index)
+        }
+    }
+
     func toEncodedString() -> String {
-        return queryString(using: { param in
+        return queryString(from: params, using: { param in
+            
+            // Escape all non-alphanumerics with percent-codes and but spaces with + (instead of %20)
+            // https://developer.mozilla.org/en-US/docs/Glossary/percent-encoding
             param.addingPercentEncoding(withAllowedCharacters: .alphanumerics)?
                 .replacingOccurrences(of: "%20", with: "+")
         })
     }
     
     func toString() -> String {
-        return queryString()
+        return queryString(from: params, using: nil)
     }
-
-    // Representation of query items as a percent-encoded string, similar to JavaScript's URLSearchParams.toString()
-    private func queryString(using encoder: ((String) -> String?)? = nil) -> String {
-        guard let queryItems = urlComponents.queryItems else {
-            return ""
-        }
-
-        return queryItems.compactMap { item in
-            guard let value = item.value else { return nil }
-            if let encoder = encoder, let encodedValue = encoder(value) {
-                return "\(item.name)=\(encodedValue)"
-            } else {
-                return "\(item.name)=\(value)"
+    
+    private func queryString(from params: [String: [String]], using encoder: ((String) -> String?)?) -> String {
+        var queryItems: [String] = []
+        for key in orderedKeys {
+            guard let values = params[key] else { continue }
+            for value in values {
+                if let encoder = encoder, let encodedValue = encoder(value) {
+                    queryItems.append("\(key)=\(encodedValue)")
+                } else {
+                    queryItems.append("\(key)=\(value)")
+                }
             }
-        }.joined(separator: "&")
+        }
+        return queryItems.joined(separator: "&")
     }
 }
 
