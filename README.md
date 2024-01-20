@@ -28,16 +28,22 @@ let decoder = JSValueDecoder()
 let runtime = Runtime()
 
 // Example model, we'll decode from the Javascript runtime, after it's been fetched from the example API.
-struct Product: Codable, Equatable {
-    let discountPercentage, rating: Double
+struct Product {
+    let discountPercentage: Double
+    let rating: Double
     let category: String
-    let id, price: Int
+    let id: Int
+    let price: Int
     let title: String
     let stock: Int
     let thumbnail: String
-    let brand, description: String
+    let brand: String
+    let description: String
     let images: [String]
 }
+
+// Conform it to Codable
+extension Product: Codable {}
 
 // Load the javascript source file defined above, alternatively JS can be written inline.
 let javascriptSource = try! String(contentsOfFile: "./example.js")
