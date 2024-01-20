@@ -45,7 +45,7 @@ final class TimerAPI {
         timerInfo?.invalidate()
     }
 
-    func registerIntoAPI(context: JSContext) {
+    func registerAPIInto(context: JSContext) {
         let setTimeout: @convention(block) (JSValue, Double) -> String = { callback, ms in
             self.createTimer(callback: callback, ms: ms, repeats: false)
         }

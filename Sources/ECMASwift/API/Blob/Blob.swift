@@ -1,12 +1,12 @@
 import Foundation
 import JavaScriptCore
 
-@objc 
+@objc
 protocol BlobExports: JSExport {
     func text() -> JSValue?
     func arrayBuffer() -> JSValue
 }
- 
+
 /// This implmenets the `Blob` browser API.
 ///
 /// Reference: [Blob Reference on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Blob)

@@ -16,7 +16,7 @@ class AbortSignal: NSObject, AbortSignalExports {
             }
         }
     }
-    
+
     var onAbort: (() -> Void)?
 }
 
@@ -28,7 +28,7 @@ protocol AbortControllerExports: JSExport {
 
 class AbortController: NSObject, AbortControllerExports {
     var signal = AbortSignal()
-    
+
     func abort() {
         signal.aborted = true
     }

@@ -1,8 +1,6 @@
 import JavaScriptCore
 
-// https://developer.mozilla.org/en-US/docs/Web/API/Headers
-
-@objc 
+@objc
 protocol HeadersExports: JSExport {
     func set(_ key: String, _ value: String)
     func get(_ key: String) -> String?
@@ -15,7 +13,7 @@ protocol HeadersExports: JSExport {
 /// Reference: [Headers Reference on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Headers)
 final class Headers: NSObject, HeadersExports {
     private var headers: [String: String] = [:]
-    
+
     init(withHeaders: [String: String] = [:]) {
         super.init()
         for (key, value) in withHeaders {

@@ -1,9 +1,7 @@
 import Foundation
 import JavaScriptCore
 
-// https://developer.mozilla.org/en-US/docs/Web/API/URL
-
-@objc 
+@objc
 protocol URLExports: JSExport {
     var `protocol`: String { get set }
     var hostname: String { get set }
@@ -13,14 +11,14 @@ protocol URLExports: JSExport {
     var origin: String { get set }
     var searchParams: URLSearchParams { get }
     var search: String { get set }
-    var fragment: String { get set }
+    var fragment: String { get set } /// This is `hash` in the actual API but it collides here, needs a different solution.
     func toString() -> String
 }
-
 
 /// This implmenets the `URL` browser API.
 ///
 /// Reference: [URL Reference on MDN](https://developer.mozilla.org/en-US/docs/Web/API/URL)
+@objc
 final class URL: NSObject, URLExports {
     var url: Foundation.URL?
 
@@ -28,7 +26,7 @@ final class URL: NSObject, URLExports {
         super.init()
         url = Foundation.URL(string: string)
     }
-    
+
     init(string: String, base: String?) {
         super.init()
         if let base = base, let baseURL = Foundation.URL(string: base) {
@@ -105,7 +103,7 @@ final class URL: NSObject, URLExports {
     }
 
     var searchParams: URLSearchParams = URLSearchParams("")
-    
+
     var search: String {
         get {
             guard let query = url?.query else { return "" }
@@ -115,7 +113,7 @@ final class URL: NSObject, URLExports {
             setURLComponent(\.query, value: newValue)
         }
     }
-    
+
     /// The actual property should be exposed as `hash` but this colides with `NSObject`, this isn't used anyway.
     /// Objective-C offers the macro `ExportAs` however there isn't a Swift equivalent.
     var fragment: String {
@@ -139,7 +137,7 @@ public struct URLAPI {
                 return URL(string: string)
             }
         }
-        
+
         context.setObject(
             urlClass,
             forKeyedSubscript: "URL" as NSString

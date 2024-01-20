@@ -1,4 +1,3 @@
-import Foundation
 import ECMASwift
 import JavaScriptCore
 import XCTest
@@ -85,6 +84,15 @@ final class URLTests: XCTestCase {
     func testSearch() {
         let result = runtime.context.evaluateScript("""
         let url = new URL("https://foobar.com/baz?1=2&3=4")
+        url.search
+        """)
+        XCTAssertEqual(result!.toString(), "?1=2&3=4")
+    }
+    
+    func testSetSearch() {
+        let result = runtime.context.evaluateScript("""
+        let url = new URL("https://foobar.com/baz")
+        url.search = "1=2&3=4"
         url.search
         """)
         XCTAssertEqual(result!.toString(), "?1=2&3=4")

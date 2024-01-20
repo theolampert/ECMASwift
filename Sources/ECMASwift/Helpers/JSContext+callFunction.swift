@@ -6,6 +6,18 @@ public extension JSContext {
             .call(withArguments: withArguments)
     }
 
+    static func getErrorFrom(key: String, error: JSValue) -> NSError {
+        var userInfo: [String: Any] = [:]
+
+        if error.isObject {
+            userInfo = error.toDictionary() as? [String: Any] ?? [:]
+        } else {
+            userInfo[NSLocalizedDescriptionKey] = error.toString() ?? "UnknownError"
+        }
+
+        return NSError(domain: key, code: 0, userInfo: userInfo)
+    }
+
     /// Calls and invidual async function identified by `key`.
     ///
     /// - Parameters:
@@ -17,17 +29,13 @@ public extension JSContext {
             let onFulfilled: @convention(block) (JSValue) -> Void = {
                 continuation.resume(returning: $0)
             }
-            let onRejected: @convention(block) (JSValue) -> Void = {
-                let error = NSError(
-                    domain: key,
-                    code: 0,
-                    userInfo: [NSLocalizedDescriptionKey: "\($0)"]
-                )
-                continuation.resume(throwing: error)
+            let onRejected: @convention(block) (JSValue) -> Void = { error in
+                let nsError = JSContext.getErrorFrom(key: key, error: error)
+                continuation.resume(throwing: nsError)
             }
             let promiseArgs = [
                 unsafeBitCast(onFulfilled, to: JSValue.self),
-                unsafeBitCast(onRejected, to: JSValue.self),
+                unsafeBitCast(onRejected, to: JSValue.self)
             ]
 
             let promise = self.objectForKeyedSubscript(key)
@@ -48,30 +56,19 @@ public extension JSContext {
            let onFulfilled: @convention(block) (JSValue) -> Void = {
                 continuation.resume(returning: $0)
            }
-           
+
            let onRejected: @convention(block) (JSValue) -> Void = { error in
-               let errorDescription: String
-               if let error = error.forProperty("reason"), !error.isUndefined, let error = error.toString() {
-                   errorDescription = error
-               } else {
-                   errorDescription = error.toString()
-               }
-               
-               let error = NSError(
-                   domain: key,
-                   code: 0,
-                   userInfo: [NSLocalizedDescriptionKey: errorDescription]
-               )
-               continuation.resume(throwing: error)
+               let nsError = JSContext.getErrorFrom(key: key, error: error)
+               continuation.resume(throwing: nsError)
            }
-           
+
            let promiseArgs = [
                unsafeBitCast(onFulfilled, to: JSValue.self),
-               unsafeBitCast(onRejected, to: JSValue.self),
+               unsafeBitCast(onRejected, to: JSValue.self)
            ]
 
            guard let promise = self.objectForKeyedSubscript(key).invokeMethod(methodKey, withArguments: withArguments),
-                promise.isNotNil else {
+                promise.hasValue else {
                    let error = NSError(
                        domain: key,
                        code: 1,
@@ -82,7 +79,7 @@ public extension JSContext {
                    continuation.resume(throwing: error)
                    return
            }
-           
+
            promise.invokeMethod("then", withArguments: promiseArgs)
        }
     }

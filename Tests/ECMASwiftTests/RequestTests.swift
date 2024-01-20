@@ -8,11 +8,11 @@ final class RequestTests: XCTestCase {
     
     func testInitialiser() async throws {
         _ = runtime.context.evaluateScript("""
-            let request = new Request("https://foobar.org", { method: "get" })
+            let request = new Request("https://languagetool.org", { method: "get" })
         """)!
 
-        XCTAssertEqual("https://foobar.org", runtime.context.evaluateScript("request.url").toString())
-        XCTAssertEqual("get", runtime.context.evaluateScript("request.method").toString())
+        XCTAssertEqual("https://languagetool.org", runtime.context.evaluateScript("request.url").toString())
+        XCTAssertEqual("GET", runtime.context.evaluateScript("request.method").toString())
     }
     
     func testURLSearchParamsBody() async throws {
@@ -57,7 +57,7 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(result!.toString(), "application/json")
     }
     
-    func testRequestBody() {
+    func testRequestBodyString() {
         let result = runtime.context.evaluateScript("""
         let request = new Request('https://example.com', {
             method: 'POST',

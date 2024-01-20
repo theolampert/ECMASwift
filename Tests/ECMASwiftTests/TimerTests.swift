@@ -1,4 +1,3 @@
-import Foundation
 import ECMASwift
 import JavaScriptCore
 import XCTest

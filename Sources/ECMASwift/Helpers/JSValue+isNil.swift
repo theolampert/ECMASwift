@@ -1,14 +1,14 @@
 import JavaScriptCore
 
 public extension JSValue {
-    
+
     /// `true` if the value is `undefined` or `null`
-    var isNil: Bool {
+    var hasNoValue: Bool {
         return isUndefined || isNull
     }
-    
+
     /// `true` if the value is neither `undefined` nor `null`
-    var isNotNil: Bool {
+    var hasValue: Bool {
         return !isUndefined && !isNull
     }
 }

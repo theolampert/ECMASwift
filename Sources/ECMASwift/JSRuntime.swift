@@ -20,21 +20,21 @@ import JavaScriptCore
 public struct JSRuntime {
     public let context: JSContext = .init()
 
-    public init() {
-        registerAPIs()
+    public init(client: HTTPClient = URLSession.shared) {
+        registerAPIs(client: client)
     }
 
-    private func registerAPIs() {
+    private func registerAPIs(client: HTTPClient) {
         // Runtime APIs
         BlobAPI().registerAPIInto(context: context)
         AbortControllerAPI().registerAPIInto(context: context)
         RequestAPI().registerAPIInto(context: context)
-        FetchAPI().registerAPIInto(context: context)
+        FetchAPI(client: client).registerAPIInto(context: context)
         HeadersAPI().registerAPIInto(context: context)
         URLSearchParamsAPI().registerAPIInto(context: context)
         URLAPI().registerAPIInto(context: context)
         ConsoleAPI().registerAPIInto(context: context)
-        TimerAPI().registerIntoAPI(context: context)
+        TimerAPI().registerAPIInto(context: context)
         TextEncoderAPI().registerAPIInto(context: context)
         CryptoAPI().registerAPIInto(context: context)
     }
