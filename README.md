@@ -2,6 +2,24 @@
 
 ECMASwift intends to implement a tiny subset of Browser APIs (mostly networking related) to make code sharing between iOS/macOS apps and the web easier.
 
+### Features
+
+ECMASwift exposes the following browser APIs to JavascriptCore, some of these are incomplete, contributions welcome.
+
+- Blob
+- Console
+- Crypto
+- Fetch
+- FormData
+- Headers
+- Request
+- TextEncoder
+- Timers
+- URL
+- URLSearchParams
+
+### Examples
+
 In Javascript:
 ```js
 // Define an async function to fetch some dummy data in Javascript
