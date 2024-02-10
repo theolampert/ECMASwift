@@ -1,6 +1,5 @@
 @testable import ECMASwift
 import JavaScriptCore
-import JSValueCoder
 import XCTest
 
 final class FetchTests: XCTestCase {

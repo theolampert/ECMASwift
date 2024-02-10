@@ -1,6 +1,5 @@
 import ECMASwift
 import JavaScriptCore
-import JSValueCoder
 import XCTest
 
 final class HeadersTests: XCTestCase {
