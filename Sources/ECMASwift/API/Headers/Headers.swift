@@ -11,6 +11,7 @@ protocol HeadersExports: JSExport {
 /// This implmenets the `Headers` browser API.
 ///
 /// Reference: [Headers Reference on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Headers)
+@objc
 final class Headers: NSObject, HeadersExports {
     private var headers: [String: String] = [:]
 

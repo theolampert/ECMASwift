@@ -3,8 +3,9 @@ import JavaScriptCore
 import XCTest
 
 final class HeadersTests: XCTestCase {
+    let runtime = JSRuntime()
+    
     func testGetAllHeaders() async throws {
-        let runtime = JSRuntime()
         let result = runtime.context.evaluateScript("""
             try {
                 let headers = new Headers()
@@ -19,7 +20,6 @@ final class HeadersTests: XCTestCase {
     }
 
     func testGetHeader() async throws {
-        let runtime = JSRuntime()
         let result = runtime.context.evaluateScript("""
             try {
                 let headers = new Headers()

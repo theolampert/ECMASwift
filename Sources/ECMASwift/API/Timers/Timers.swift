@@ -50,6 +50,7 @@ actor TimerAPI {
                 try? await Task.sleep(nanoseconds: UInt64(timeInterval))
                 if Task.isCancelled { return }
                 callback.call(withArguments: [])
+                await self.removeTimer(uuid: uuid)
             }
         } else {
             timers[uuid] = Task.detached {
@@ -57,6 +58,7 @@ actor TimerAPI {
                 for await _ in timer {
                     callback.call(withArguments: [])
                 }
+                await self.removeTimer(uuid: uuid)
             }
         }
         
