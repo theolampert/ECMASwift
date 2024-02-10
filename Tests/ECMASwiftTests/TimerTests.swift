@@ -40,9 +40,10 @@ final class TimerAPITests: XCTestCase {
     
     func testSetInterval() {
         let expectation = self.expectation(description: "setInterval should execute twice")
+        expectation.expectedFulfillmentCount = 2
         
         let jsFunction: @convention(block) () -> Void = {
-            expectation.fulfill()
+           expectation.fulfill()
         }
         runtime.context.setObject(unsafeBitCast(jsFunction, to: AnyObject.self), forKeyedSubscript: "jsFunction" as NSString)
         

@@ -34,7 +34,9 @@ public struct JSRuntime {
         URLSearchParamsAPI().registerAPIInto(context: context)
         URLAPI().registerAPIInto(context: context)
         ConsoleAPI().registerAPIInto(context: context)
-        TimerAPI().registerAPIInto(context: context)
+        Task {
+            await TimerAPI().registerAPIInto(context: context)
+        }
         TextEncoderAPI().registerAPIInto(context: context)
         CryptoAPI().registerAPIInto(context: context)
     }

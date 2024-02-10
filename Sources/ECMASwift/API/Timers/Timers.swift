@@ -1,6 +1,36 @@
 import JavaScriptCore
 import os.lock
 
+struct AsyncTimer: AsyncSequence {
+    typealias Element = Void
+
+    let interval: TimeInterval
+
+    struct AsyncIterator: AsyncIteratorProtocol {
+        let interval: TimeInterval
+
+        init(interval: TimeInterval) {
+            self.interval = interval
+        }
+
+        mutating func next() async -> Void? {
+            guard !Task.isCancelled else { return () }
+            do {
+                try await Task.sleep(nanoseconds: UInt64(interval))
+                return ()
+            } catch {
+                // Handle cancellation
+                return nil
+            }
+        }
+    }
+
+    func makeAsyncIterator() -> AsyncIterator {
+        return AsyncIterator(interval: interval)
+    }
+}
+
+
 /// This implmenets several timer related browser APIs.`
 ///
 /// References:
@@ -8,43 +38,37 @@ import os.lock
 /// - [setInterval()](https://developer.mozilla.org/en-US/docs/Web/API/setInterval)
 /// - [clearTimeout()](https://developer.mozilla.org/en-US/docs/Web/API/clearTimeout)
 /// - [clearInterval()](https://developer.mozilla.org/en-US/docs/Web/API/clearInterval)
-final class TimerAPI {
-    var timers = [String: Timer]()
-
-    private var lock = os_unfair_lock_s()
-
+actor TimerAPI {
+    private var timers = [String: Task<Void, Never>]()
+    
     func createTimer(callback: JSValue, ms: Double, repeats: Bool) -> String {
-        let timeInterval = ms / 1000.0
+        let timeInterval = ms * 1_000_000
         let uuid = UUID().uuidString
-        let timer = Timer(timeInterval: timeInterval, repeats: repeats) { [weak self, weak callback] _ in
-            if let callback = callback, callback.isObject {
+        
+        if !repeats {
+            timers[uuid] = Task.detached {
+                try? await Task.sleep(nanoseconds: UInt64(timeInterval))
+                if Task.isCancelled { return }
                 callback.call(withArguments: [])
             }
-
-            if !repeats {
-                os_unfair_lock_lock(&self!.lock)
-                self?.timers[uuid] = nil
-                os_unfair_lock_unlock(&self!.lock)
+        } else {
+            timers[uuid] = Task.detached {
+                let timer = AsyncTimer(interval: timeInterval)
+                for await _ in timer {
+                    callback.call(withArguments: [])
+                }
             }
         }
-
-        os_unfair_lock_lock(&lock)
-        timers[uuid] = timer
-        os_unfair_lock_unlock(&lock)
-
-        RunLoop.main.add(timer, forMode: .common)
+        
 
         return uuid
     }
-
-    func invalidateTimer(with id: String) {
-        os_unfair_lock_lock(&lock)
-        let timerInfo = timers.removeValue(forKey: id)
-        os_unfair_lock_unlock(&lock)
-
-        timerInfo?.invalidate()
+    
+    func removeTimer(uuid: String) {
+        timers[uuid]?.cancel()
+        timers[uuid] = nil
     }
-
+    
     func registerAPIInto(context: JSContext) {
         let setTimeout: @convention(block) (JSValue, Double) -> String = { callback, ms in
             self.createTimer(callback: callback, ms: ms, repeats: false)
@@ -53,10 +77,14 @@ final class TimerAPI {
             self.createTimer(callback: callback, ms: ms, repeats: true)
         }
         let clearTimeout: @convention(block) (String) -> Void = { [weak self] timerId in
-            self?.invalidateTimer(with: timerId)
+            Task { [self] in
+                await self?.removeTimer(uuid: timerId)
+            }
         }
         let clearInterval: @convention(block) (String) -> Void = { [weak self] timerId in
-            self?.invalidateTimer(with: timerId)
+            Task { [self] in
+                await self?.removeTimer(uuid: timerId)
+            }
         }
         context.setObject(setTimeout, forKeyedSubscript: "setTimeout" as NSString)
         context.setObject(setInterval, forKeyedSubscript: "setInterval" as NSString)
