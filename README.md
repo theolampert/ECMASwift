@@ -43,7 +43,7 @@ import JSValueCoder
 let decoder = JSValueDecoder()
 
 // Initialise the runtime
-let runtime = Runtime()
+let runtime = JSRuntime()
 
 // Example model, we'll decode from the Javascript runtime, after it's been fetched from the example API.
 struct Product {
