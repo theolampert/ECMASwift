@@ -6,6 +6,7 @@ protocol URLExports: JSExport {
     var `protocol`: String { get set }
     var hostname: String { get set }
     var host: String { get set }
+    var href: String { get set }
     var pathname: String { get set }
     var port: String { get set }
     var origin: String { get set }
@@ -68,6 +69,13 @@ final class URL: NSObject, URLExports {
     var host: String {
         get { return url?.host ?? "" }
         set(newValue) { setURLComponent(\.host, value: newValue) }
+    }
+    
+    var href: String {
+        get { return toString() }
+        set(newValue) {
+            self.url = Foundation.URL(string: newValue)
+        }
     }
 
     var pathname: String {
