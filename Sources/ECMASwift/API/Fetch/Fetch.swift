@@ -46,11 +46,15 @@ public final class FetchAPI {
     }
 
     public func registerAPIInto(context: JSContext) {
-        let fetch: @convention(block) (String, JSValue?) -> JSManagedValue? = { url, options in
+        let fetch: @convention(block) (JSValue, JSValue?) -> JSManagedValue? = { url, options in
             var fetchTask: Task<Void, Never>?
             let promise = JSValue(newPromiseIn: context) { [weak self] resolve, reject in
                 guard let resolve, let reject else { return }
-                let request = Request(url: url, options: options).request
+                guard let request = url.isInstance(of: Request.self) ? (url.toObjectOf(Request.self) as? Request)?.request : Request(url: url.toString(), options: options).request else {
+                    print(url)
+                    return
+                }
+                dump(request)
                 guard let client = self?.client else { return }
                 fetchTask = Task {
                     do {
