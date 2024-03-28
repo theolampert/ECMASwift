@@ -41,8 +41,12 @@ final class Headers: NSObject, HeadersExports {
 /// Helper to register the ``Headers`` API with a context.
 struct HeadersAPI {
     func registerAPIInto(context: JSContext) {
-        let headersClass: @convention(block) () -> Headers = {
-            Headers()
+        let headersClass: @convention(block) (JSValue?) -> Headers = { headers in
+            if let headers {
+                Headers(withHeaders: headers.toDictionary() as! [String: String])
+            } else {
+                Headers()
+            }
         }
         context.setObject(
             unsafeBitCast(headersClass, to: AnyObject.self),
