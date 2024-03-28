@@ -40,7 +40,7 @@ final class Request: NSObject, RequestExports {
         self.request.httpMethod = "GET"
 
         if let options, options.hasValue {
-            if options.hasProperty("method") {
+            if options.hasProperty("method"), options.forProperty("method").hasValue {
                 request.httpMethod = options.forProperty("method").toString()
             }
             if let body = options.forProperty("body") {
