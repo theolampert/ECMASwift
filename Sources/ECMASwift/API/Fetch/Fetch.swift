@@ -38,6 +38,7 @@ public final class FetchAPI {
             FetchAPI.text(data: data, context: context)
         }
         return [
+            "url": response.url?.absoluteString,
             "ok": response.statusCode >= 200 && response.statusCode < 400,
             "status": response.statusCode,
             "json": JSValue(object: jsonjs, in: context) as Any,
