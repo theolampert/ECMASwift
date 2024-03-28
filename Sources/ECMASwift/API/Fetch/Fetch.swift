@@ -52,6 +52,12 @@ public final class FetchAPI {
             let promise = JSValue(newPromiseIn: context) { [weak self] resolve, reject in
                 guard let resolve, let reject else { return }
                 guard let request = url.isInstance(of: Request.self) ? (url.toObjectOf(Request.self) as? Request)?.request : Request(url: url.toString(), options: options).request else {
+                    reject.call(withArguments: [
+                        [
+                            "name": "FetchError",
+                            "response": "Could not decode URL / Request."
+                        ]
+                    ])
                     return
                 }
                 guard let client = self?.client else { return }
