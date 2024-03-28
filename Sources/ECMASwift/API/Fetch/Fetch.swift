@@ -38,6 +38,7 @@ public final class FetchAPI {
             FetchAPI.text(data: data, context: context)
         }
         return [
+            "url": response.url?.absoluteString,
             "ok": response.statusCode >= 200 && response.statusCode < 400,
             "status": response.statusCode,
             "json": JSValue(object: jsonjs, in: context) as Any,
@@ -46,11 +47,23 @@ public final class FetchAPI {
     }
 
     public func registerAPIInto(context: JSContext) {
-        let fetch: @convention(block) (String, JSValue?) -> JSManagedValue? = { url, options in
+        let fetch: @convention(block) (JSValue, JSValue?) -> JSManagedValue? = { url, options in
             var fetchTask: Task<Void, Never>?
             let promise = JSValue(newPromiseIn: context) { [weak self] resolve, reject in
                 guard let resolve, let reject else { return }
-                let request = Request(url: url, options: options).request
+                guard var request = url.isInstance(of: Request.self) ? (url.toObjectOf(Request.self) as? Request)?.request : Request(url: url.toString(), options: options).request else {
+                    reject.call(withArguments: [
+                        [
+                            "name": "FetchError",
+                            "response": "Could not decode URL / Request."
+                        ]
+                    ])
+                    return
+                }
+                // options can include body.
+                if let options, options.hasProperty("body") {
+                    request.httpBody = options.forProperty("body").toString().data(using: .utf8)
+                }
                 guard let client = self?.client else { return }
                 fetchTask = Task {
                     do {
