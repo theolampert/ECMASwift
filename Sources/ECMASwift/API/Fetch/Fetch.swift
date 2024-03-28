@@ -48,10 +48,11 @@ public final class FetchAPI {
 
     public func registerAPIInto(context: JSContext) {
         let fetch: @convention(block) (JSValue, JSValue?) -> JSManagedValue? = { url, options in
+            print(url, options)
             var fetchTask: Task<Void, Never>?
             let promise = JSValue(newPromiseIn: context) { [weak self] resolve, reject in
                 guard let resolve, let reject else { return }
-                guard let request = url.isInstance(of: Request.self) ? (url.toObjectOf(Request.self) as? Request)?.request : Request(url: url.toString(), options: options).request else {
+                guard var request = url.isInstance(of: Request.self) ? (url.toObjectOf(Request.self) as? Request)?.request : Request(url: url.toString(), options: options).request else {
                     reject.call(withArguments: [
                         [
                             "name": "FetchError",
@@ -59,6 +60,10 @@ public final class FetchAPI {
                         ]
                     ])
                     return
+                }
+                // options can include body.
+                if let options, options.hasProperty("body") {
+                    request.httpBody = options.forProperty("body").toString().data(using: .utf8)
                 }
                 guard let client = self?.client else { return }
                 fetchTask = Task {
