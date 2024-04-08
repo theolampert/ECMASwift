@@ -42,7 +42,7 @@ final class Headers: NSObject, HeadersExports {
 struct HeadersAPI {
     func registerAPIInto(context: JSContext) {
         let headersClass: @convention(block) (JSValue?) -> Headers = { headers in
-            if let headers {
+            if let headers, headers.hasValue {
                 Headers(withHeaders: headers.toDictionary() as! [String: String])
             } else {
                 Headers()
