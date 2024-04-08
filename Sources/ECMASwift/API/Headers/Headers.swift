@@ -43,9 +43,9 @@ struct HeadersAPI {
     func registerAPIInto(context: JSContext) {
         let headersClass: @convention(block) (JSValue?) -> Headers = { headers in
             if let headers, headers.hasValue {
-                Headers(withHeaders: headers.toDictionary() as! [String: String])
+                return Headers(withHeaders: headers.toDictionary() as! [String: String])
             } else {
-                Headers()
+                return Headers()
             }
         }
         context.setObject(
