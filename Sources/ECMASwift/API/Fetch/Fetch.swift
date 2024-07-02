@@ -61,7 +61,7 @@ public final class FetchAPI {
                     return
                 }
                 // options can include body.
-                if let options, options.hasProperty("body") {
+                if let options, options.hasValue, options.hasProperty("body") {
                     request.httpBody = options.forProperty("body").toString().data(using: .utf8)
                 }
                 guard let client = self?.client else { return }
@@ -89,11 +89,13 @@ public final class FetchAPI {
                         return
                     }
                 }
-                if let signal = options?.forProperty("signal").toType(AbortSignal.self) {
-                    signal.onAbort = {
-                        if signal.aborted {
-                            fetchTask?.cancel()
-                            reject.call(withArguments: [["name": "AbortError"]])
+                if let options = options, options.hasValue {
+                    if let signal = options.forProperty("signal").toType(AbortSignal.self) {
+                        signal.onAbort = {
+                            if signal.aborted {
+                                fetchTask?.cancel()
+                                reject.call(withArguments: [["name": "AbortError"]])
+                            }
                         }
                     }
                 }
