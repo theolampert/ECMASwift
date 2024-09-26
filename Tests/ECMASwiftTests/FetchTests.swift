@@ -22,4 +22,24 @@ final class FetchTests: XCTestCase {
         XCTAssertEqual(request.allHTTPHeaderFields, options["headers"] as? [String: String])
         XCTAssertEqual(String(data: request.httpBody!, encoding: .utf8), options["body"] as? String)
     }
+
+    func testGetRequest() async {
+        let client = MockClient(
+            url: URL(string: "https://foobar.com")!,
+            json: "{\"foo\": \"bar\"}",
+            statusCode: 200
+        )
+        let runtime = JSRuntime(client: client)
+
+        _ = runtime.context.evaluateScript("""
+        async function getJSON() {
+            let res = await fetch("https://foobar.com")
+            let json = await res.text()
+            return json
+        }
+        """)
+        let result = try! await runtime.context.callAsyncFunction(key: "getJSON")
+
+        XCTAssertEqual("{\"foo\": \"bar\"}", result.toString()!)
+    }
 }
