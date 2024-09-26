@@ -42,4 +42,80 @@ final class FetchTests: XCTestCase {
 
         XCTAssertEqual("{\"foo\": \"bar\"}", result.toString()!)
     }
+    
+    func testPostRequest() async {
+        let client = MockClient(
+            url: URL(string: "https://api.example.com/post")!,
+            json: "{\"success\": true}",
+            statusCode: 201
+        )
+        let runtime = JSRuntime(client: client)
+
+        _ = runtime.context.evaluateScript("""
+        async function postData() {
+            let res = await fetch("https://api.example.com/post", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({data: 'test'})
+            })
+            let json = await res.json()
+            return json
+        }
+        """)
+        let result = try! await runtime.context.callAsyncFunction(key: "postData")
+
+        XCTAssertEqual(true, result.objectForKeyedSubscript("success").toBool())
+    }
+    
+    func testFetchWithHeaders() async {
+        let client = MockClient(
+            url: URL(string: "https://api.example.com/headers")!,
+            json: "{\"receivedHeader\": \"CustomValue\"}",
+            statusCode: 200
+        )
+        let runtime = JSRuntime(client: client)
+
+        _ = runtime.context.evaluateScript("""
+        async function fetchWithHeaders() {
+            let res = await fetch("https://api.example.com/headers", {
+                headers: {
+                    'X-Custom-Header': 'CustomValue'
+                }
+            })
+            let json = await res.json()
+            return json
+        }
+        """)
+        let result = try! await runtime.context.callAsyncFunction(key: "fetchWithHeaders")
+
+        XCTAssertEqual("CustomValue", result.objectForKeyedSubscript("receivedHeader").toString())
+    }
+    
+    func testFetchError() async {
+        let client = MockClient(
+            url: URL(string: "https://api.example.com/error")!,
+            json: "{\"error\": \"Not Found\"}",
+            statusCode: 404
+        )
+        let runtime = JSRuntime(client: client)
+
+        _ = runtime.context.evaluateScript("""
+        async function fetchWithError() {
+            try {
+                let res = await fetch("https://api.example.com/error")
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`)
+                }
+                return await res.json()
+            } catch (e) {
+                return e.message
+            }
+        }
+        """)
+        let result = try! await runtime.context.callAsyncFunction(key: "fetchWithError")
+
+        XCTAssertEqual("HTTP error! status: 404", result.toString())
+    }
 }
